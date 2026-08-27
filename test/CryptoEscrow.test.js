@@ -99,4 +99,65 @@ describe("CryptoEscrow", function () {
       })
     ).to.be.revertedWith("Buyer cannot be seller");
   });
+
+  it("prevents the buyer from releasing an escrow twice", async function () {
+    const amount = ethers.utils.parseEther("1");
+
+    await escrow.connect(buyer).createEscrow(seller.address, {
+      value: amount,
+    });
+
+    await escrow.connect(buyer).release(0);
+
+    await expect(
+      escrow.connect(buyer).release(0)
+    ).to.be.revertedWith("Escrow is not active");
+  });
+
+  it("prevents a refund after the escrow was released", async function () {
+    const amount = ethers.utils.parseEther("1");
+
+    await escrow.connect(buyer).createEscrow(seller.address, {
+      value: amount,
+    });
+
+    await escrow.connect(buyer).release(0);
+
+    await expect(
+      escrow.connect(buyer).refund(0)
+    ).to.be.revertedWith("Escrow is not active");
+  });
+
+  it("prevents releasing an escrow after a refund", async function () {
+    const amount = ethers.utils.parseEther("1");
+
+    await escrow.connect(buyer).createEscrow(seller.address, {
+      value: amount,
+    });
+
+    await escrow.connect(buyer).refund(0);
+
+    await expect(
+      escrow.connect(buyer).release(0)
+    ).to.be.revertedWith("Escrow is not active");
+  });
+
+  it("prevents interacting with a nonexistent escrow", async function () {
+    await expect(
+      escrow.connect(buyer).release(999)
+    ).to.be.revertedWith("Escrow does not exist");
+  });
+
+  it("prevents another account from requesting a refund", async function () {
+    const amount = ethers.utils.parseEther("1");
+
+    await escrow.connect(buyer).createEscrow(seller.address, {
+      value: amount,
+    });
+
+    await expect(
+      escrow.connect(other).refund(0)
+    ).to.be.revertedWith("Only buyer");
+  });
+
 });
