@@ -160,4 +160,26 @@ describe("CryptoEscrow", function () {
     ).to.be.revertedWith("Only buyer");
   });
 
+
+  it("reverts when the seller rejects ETH", async function () {
+    const amount = ethers.utils.parseEther("1");
+
+    const RejectingSeller = await ethers.getContractFactory("RejectingSeller");
+    const rejectingSeller = await RejectingSeller.deploy();
+    await rejectingSeller.deployed();
+
+    await escrow.connect(buyer).createEscrow(rejectingSeller.address, {
+      value: amount,
+    });
+
+    await expect(
+      escrow.connect(buyer).release(0)
+    ).to.be.revertedWith("Transfer failed");
+
+    const data = await escrow.getEscrow(0);
+
+    expect(data.amount).to.equal(amount);
+    expect(data.status).to.equal(0);
+  });
+
 });
