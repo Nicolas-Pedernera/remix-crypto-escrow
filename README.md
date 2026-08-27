@@ -1,13 +1,26 @@
-# Sample Hardhat Project
+# Crypto Escrow Smart Contract
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a Hardhat Ignition module that deploys that contract.
+A simple Ethereum escrow smart contract built with Solidity and Hardhat.
 
-Try running some of the following tasks:
+## Features
 
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat ignition deploy ./ignition/modules/Lock.js
-```
+- Create an escrow by depositing ETH.
+- Release funds to the seller.
+- Refund funds to the buyer.
+- Prevent unauthorized releases.
+- Validate escrow participants and deposit amounts.
+- Emit events for escrow lifecycle actions.
+
+## Tech Stack
+
+- Solidity 0.8.28
+- Hardhat 2.x
+- Ethers.js 5.x
+- Chai
+- Ethereum Virtual Machine (EVM)
+
+## Escrow Lifecycle
+
+```text
+Created -> Released
+        -> Refunded
