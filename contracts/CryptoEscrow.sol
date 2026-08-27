@@ -10,6 +10,15 @@ contract CryptoEscrow is ReentrancyGuard {
         Refunded
     }
 
+    error InvalidSeller();
+    error BuyerCannotBeSeller();
+    error InvalidAmount();
+    error OnlyBuyer();
+    error EscrowDoesNotExist();
+    error EscrowNotActive();
+    error TransferFailed();
+    error RefundFailed();
+
     struct Escrow {
         address payable buyer;
         address payable seller;
@@ -40,21 +49,21 @@ contract CryptoEscrow is ReentrancyGuard {
     );
 
     modifier onlyBuyer(uint256 escrowId) {
-        require(msg.sender == escrows[escrowId].buyer, "Only buyer");
+        if (msg.sender != escrows[escrowId].buyer) revert OnlyBuyer();
         _;
     }
 
     modifier onlyExistingEscrow(uint256 escrowId) {
-        require(escrowId < _nextEscrowId, "Escrow does not exist");
+        if (escrowId >= _nextEscrowId) revert EscrowDoesNotExist();
         _;
     }
 
     function createEscrow(
         address payable seller
     ) external payable returns (uint256 escrowId) {
-        require(seller != address(0), "Invalid seller");
-        require(seller != msg.sender, "Buyer cannot be seller");
-        require(msg.value > 0, "Amount must be greater than zero");
+        if (seller == address(0)) revert InvalidSeller();
+        if (seller == msg.sender) revert BuyerCannotBeSeller();
+        if (msg.value == 0) revert InvalidAmount();
 
         escrowId = _nextEscrowId++;
 
@@ -83,7 +92,7 @@ contract CryptoEscrow is ReentrancyGuard {
     {
         Escrow storage escrow = escrows[escrowId];
 
-        require(escrow.status == Status.Created, "Escrow is not active");
+        if (escrow.status != Status.Created) revert EscrowNotActive();
 
         escrow.status = Status.Released;
 
@@ -91,7 +100,7 @@ contract CryptoEscrow is ReentrancyGuard {
         escrow.amount = 0;
 
         (bool success, ) = escrow.seller.call{value: amount}("");
-        require(success, "Transfer failed");
+        if (!success) revert TransferFailed();
 
         emit EscrowReleased(escrowId, escrow.seller, amount);
     }
@@ -106,7 +115,7 @@ contract CryptoEscrow is ReentrancyGuard {
     {
         Escrow storage escrow = escrows[escrowId];
 
-        require(escrow.status == Status.Created, "Escrow is not active");
+        if (escrow.status != Status.Created) revert EscrowNotActive();
 
         escrow.status = Status.Refunded;
 
@@ -114,7 +123,7 @@ contract CryptoEscrow is ReentrancyGuard {
         escrow.amount = 0;
 
         (bool success, ) = escrow.buyer.call{value: amount}("");
-        require(success, "Refund failed");
+        if (!success) revert RefundFailed();
 
         emit EscrowRefunded(escrowId, escrow.buyer, amount);
     }

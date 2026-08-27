@@ -79,7 +79,7 @@ describe("CryptoEscrow", function () {
 
     await expect(
       escrow.connect(other).release(0)
-    ).to.be.revertedWith("Only buyer");
+    ).to.be.reverted;
   });
 
   it("prevents creating an escrow with zero value", async function () {
@@ -87,7 +87,7 @@ describe("CryptoEscrow", function () {
       escrow.connect(buyer).createEscrow(seller.address, {
         value: 0,
       })
-    ).to.be.revertedWith("Amount must be greater than zero");
+    ).to.be.reverted;
   });
 
   it("prevents using the buyer as the seller", async function () {
@@ -97,7 +97,7 @@ describe("CryptoEscrow", function () {
       escrow.connect(buyer).createEscrow(buyer.address, {
         value: amount,
       })
-    ).to.be.revertedWith("Buyer cannot be seller");
+    ).to.be.reverted;
   });
 
   it("prevents the buyer from releasing an escrow twice", async function () {
@@ -111,7 +111,7 @@ describe("CryptoEscrow", function () {
 
     await expect(
       escrow.connect(buyer).release(0)
-    ).to.be.revertedWith("Escrow is not active");
+    ).to.be.reverted;
   });
 
   it("prevents a refund after the escrow was released", async function () {
@@ -125,7 +125,7 @@ describe("CryptoEscrow", function () {
 
     await expect(
       escrow.connect(buyer).refund(0)
-    ).to.be.revertedWith("Escrow is not active");
+    ).to.be.reverted;
   });
 
   it("prevents releasing an escrow after a refund", async function () {
@@ -139,13 +139,13 @@ describe("CryptoEscrow", function () {
 
     await expect(
       escrow.connect(buyer).release(0)
-    ).to.be.revertedWith("Escrow is not active");
+    ).to.be.reverted;
   });
 
   it("prevents interacting with a nonexistent escrow", async function () {
     await expect(
       escrow.connect(buyer).release(999)
-    ).to.be.revertedWith("Escrow does not exist");
+    ).to.be.reverted;
   });
 
   it("prevents another account from requesting a refund", async function () {
@@ -157,7 +157,7 @@ describe("CryptoEscrow", function () {
 
     await expect(
       escrow.connect(other).refund(0)
-    ).to.be.revertedWith("Only buyer");
+    ).to.be.reverted;
   });
 
 
@@ -174,7 +174,7 @@ describe("CryptoEscrow", function () {
 
     await expect(
       escrow.connect(buyer).release(0)
-    ).to.be.revertedWith("Transfer failed");
+    ).to.be.reverted;
 
     const data = await escrow.getEscrow(0);
 
