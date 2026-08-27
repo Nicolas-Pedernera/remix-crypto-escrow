@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-contract CryptoEscrow {
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+
+contract CryptoEscrow is ReentrancyGuard {
     enum Status {
         Created,
         Released,
@@ -73,7 +75,12 @@ contract CryptoEscrow {
 
     function release(
         uint256 escrowId
-    ) external onlyExistingEscrow(escrowId) onlyBuyer(escrowId) {
+    )
+        external
+        nonReentrant
+        onlyExistingEscrow(escrowId)
+        onlyBuyer(escrowId)
+    {
         Escrow storage escrow = escrows[escrowId];
 
         require(escrow.status == Status.Created, "Escrow is not active");
@@ -91,7 +98,12 @@ contract CryptoEscrow {
 
     function refund(
         uint256 escrowId
-    ) external onlyExistingEscrow(escrowId) onlyBuyer(escrowId) {
+    )
+        external
+        nonReentrant
+        onlyExistingEscrow(escrowId)
+        onlyBuyer(escrowId)
+    {
         Escrow storage escrow = escrows[escrowId];
 
         require(escrow.status == Status.Created, "Escrow is not active");
@@ -109,12 +121,17 @@ contract CryptoEscrow {
 
     function getEscrow(
         uint256 escrowId
-    ) external view onlyExistingEscrow(escrowId) returns (
-        address buyer,
-        address seller,
-        uint256 amount,
-        Status status
-    ) {
+    )
+        external
+        view
+        onlyExistingEscrow(escrowId)
+        returns (
+            address buyer,
+            address seller,
+            uint256 amount,
+            Status status
+        )
+    {
         Escrow memory escrow = escrows[escrowId];
 
         return (
