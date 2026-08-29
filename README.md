@@ -178,3 +178,10 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for detai
 ---
 
 Built as a Solidity and Ethereum security-focused portfolio project by Nicolas Pedernera.
+
+## Related Projects
+
+This contract implements a two-party escrow — deposit, then release or refund. For other Solidity work in my portfolio with a different focus:
+
+- [defi-vault-contracts](https://github.com/Nicolas-Pedernera/defi-vault-contracts) — a staking vault (deposit/withdraw, many depositors), focused on demonstrating reentrancy protection with a test suite that actively attacks the contract.
+- [MarginVault](https://github.com/Nicolas-Pedernera/MarginVault) — leveraged trading: margin, liquidation, and PnL calculation, unrelated to escrow.
